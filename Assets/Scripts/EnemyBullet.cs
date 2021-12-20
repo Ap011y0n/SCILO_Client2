@@ -9,8 +9,10 @@ public class EnemyBullet : MonoBehaviour
     public float lifeTime = 5;
     private System.DateTime start;
 
+
     void Start()
     {
+
         Vector3 temp = transform.forward * velocity;
         GetComponent<Rigidbody>().velocity += temp;
         start = System.DateTime.UtcNow;
@@ -21,6 +23,7 @@ public class EnemyBullet : MonoBehaviour
     {
         if((System.DateTime.UtcNow - start).Seconds > 5f)
         {
+           
             Destroy(gameObject);
         }
     }
@@ -29,6 +32,7 @@ public class EnemyBullet : MonoBehaviour
     {
         if(!other.gameObject.CompareTag("Enemy"))
         {
+
             Destroy(gameObject);
         }
     }

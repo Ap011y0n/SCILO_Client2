@@ -5,7 +5,6 @@ using UnityEngine;
 public class gun : MonoBehaviour
 {
     // Start is called before the first frame update
-    public GameObject target;
     void Start()
     {
         
@@ -32,7 +31,6 @@ public class gun : MonoBehaviour
             if (Input.mousePosition.y - screenPos.y < 0)
                 mod = 1;
             transform.rotation = Quaternion.AngleAxis(angle * mod, Vector3.right);
-            //transform.LookAt(target.transform);
         }
     }
 }

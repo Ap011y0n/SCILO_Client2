@@ -35,13 +35,13 @@ public class playerClient : MonoBehaviour
         }
         if (Input.GetKeyUp(KeyCode.D))
         {
-            // Debug.Log("D key Up");
+           // Debug.Log("D key Up");
             clientObj.GetComponent<clientUDP>().AddInput(KeyCode.D, "KeyUp");
             animator.SetFloat("isWalking", 0.5f);
         }
         if (Input.GetKeyUp(KeyCode.A))
         {
-            // Debug.Log("A key Up");
+           // Debug.Log("A key Up");
             clientObj.GetComponent<clientUDP>().AddInput(KeyCode.A, "KeyUp");
             animator.SetFloat("isWalking", 0.5f);
         }
