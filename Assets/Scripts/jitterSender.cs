@@ -68,14 +68,14 @@ public class jitterSender : MonoBehaviour
             int i = 0;
             if (messageBuffer.Count > 0)
             {
-               // Debug.Log("This is working");
+                // Debug.Log("This is working");
 
                 List<Message> auxBuffer;
                 lock (myLock)
                 {
                     auxBuffer = new List<Message>(messageBuffer);
                 }
-                
+
                 foreach (var m in auxBuffer)
                 {
                     if (m.time < d)

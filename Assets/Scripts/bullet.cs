@@ -18,7 +18,7 @@ public class bullet : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if((System.DateTime.UtcNow - start).Seconds > 5f)
+        if ((System.DateTime.UtcNow - start).Seconds > 5f)
         {
             Destroy(gameObject);
             Debug.LogError("Delete me from dictionary");
@@ -29,7 +29,7 @@ public class bullet : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if(!other.gameObject.CompareTag("Player"))
+        if (!other.gameObject.CompareTag("Player"))
         {
             Destroy(gameObject);
         }

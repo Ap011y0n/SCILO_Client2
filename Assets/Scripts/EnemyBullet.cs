@@ -21,16 +21,16 @@ public class EnemyBullet : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if((System.DateTime.UtcNow - start).Seconds > 5f)
+        if ((System.DateTime.UtcNow - start).Seconds > 5f)
         {
-           
+
             Destroy(gameObject);
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if(!other.gameObject.CompareTag("Enemy"))
+        if (!other.gameObject.CompareTag("Enemy"))
         {
 
             Destroy(gameObject);
