@@ -190,6 +190,10 @@ public class clientUDP : MonoBehaviour
     public int livesLeft = 10;
 
     // Start is called before the first frame update
+    private void Awake()
+    {
+        Application.targetFrameRate = 60;
+    }
     void Start()
     {
         ExecuteScript();
@@ -198,6 +202,8 @@ public class clientUDP : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        Debug.Log((int)(1f / Time.unscaledDeltaTime));
+
         m_MyText.text = livesLeft.ToString();
 
         if (defeat)
@@ -391,19 +397,8 @@ public class clientUDP : MonoBehaviour
             Debug.Log("Couldn't send or receive message");
             Debug.Log(e.ToString());
             Debug.Log("Disconnecting from server");
-            MainThread.Abort();
-            try
-            {
-                jitter.Server.Shutdown(SocketShutdown.Both);
-                jitter.Server.Close();
-            }
-
-            catch (SystemException d)
-            {
-                Debug.Log("Socket already closed");
-                Debug.Log(d.ToString());
-
-            }
+            EndConnection();
+            SceneManager.LoadScene("MenuScene");
         }
 
 
