@@ -7,6 +7,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace CustomClasses
 {
@@ -14,6 +16,7 @@ namespace CustomClasses
     [System.Serializable]
     public class WelcomeMessage
     {
+        public int livesLeft = 10;
         public string GUIDplayer1;
         public string GUIDplayer2;
         public string GUIDgun1;
@@ -26,6 +29,7 @@ namespace CustomClasses
     public class Message
     {
         public int ACK = 0;
+        public int livesLeft = 10;
         public List<string> messageTypes = new List<string>();
         public List<SceneObject> objects = new List<SceneObject>();
         public List<Input> inputs = new List<Input>();
@@ -138,7 +142,7 @@ namespace CustomClasses
 
 public class clientUDP : MonoBehaviour
 {
-   
+
 
     private Socket newSocket;
     IPEndPoint sender;
@@ -179,6 +183,12 @@ public class clientUDP : MonoBehaviour
     public Quaternion gunRotation;
     public GameObject gun;
     public jitterSender jitter;
+    private bool victory = false;
+    private bool defeat = false;
+
+    public Text m_MyText;
+    public int livesLeft = 10;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -188,14 +198,31 @@ public class clientUDP : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        m_MyText.text = livesLeft.ToString();
+
+        if (defeat)
+        {
+            SceneManager.LoadScene("defeat");
+        }
+        if (victory)
+        {
+            SceneManager.LoadScene("victory");
+        }
         gunRotation = gun.transform.rotation;
         if (WaitingToSpawn.Count > 0)
         {
             for (int i = 0; i < WaitingToSpawn.Count; i++)
             {
-                Debug.Log("Spawning: " + WaitingToSpawn[i].name);
                 if (!dynamicObjects.ContainsKey(WaitingToSpawn[i].guid))
-                    dynamicObjects.Add(WaitingToSpawn[i].guid, Instantiate(prefabs[Convert.ToInt32(WaitingToSpawn[i].name)], WaitingToSpawn[i].position, WaitingToSpawn[i].rotation));
+                {
+                    if (Convert.ToInt32(WaitingToSpawn[i].name) != 0 && Convert.ToInt32(WaitingToSpawn[i].name) != 2)
+                        dynamicObjects.Add(WaitingToSpawn[i].guid, Instantiate(prefabs[Convert.ToInt32(WaitingToSpawn[i].name)], WaitingToSpawn[i].position, WaitingToSpawn[i].rotation));
+                    else
+                    {
+                        Instantiate(prefabs[Convert.ToInt32(WaitingToSpawn[i].name)], WaitingToSpawn[i].position, WaitingToSpawn[i].rotation);
+                    }
+                    Debug.Log("Spawning: " + WaitingToSpawn[i].name);
+                }
             }
             WaitingToSpawn.Clear();
         }
@@ -230,7 +257,7 @@ public class clientUDP : MonoBehaviour
         }
         if (Objs2Update.Count > 0)
         {
-            for(int i = 0; i < Objs2Update.Count; i++)
+            for (int i = 0; i < Objs2Update.Count; i++)
             {
 
                 if (Objs2Update[i].name != "")
@@ -272,16 +299,16 @@ public class clientUDP : MonoBehaviour
                         Debug.LogError(e.ToString());
 
                     }
-                    
+
                 }
             }
             if (firstInterpolationFrame == true)
             {
                 firstInterpolationFrame = false;
             }
-        } 
+        }
 
-        if(interpolationTracker >= 1)
+        if (interpolationTracker >= 1)
         {
             Objs2Update.Clear();
             interpolationTracker = 0;
@@ -292,10 +319,10 @@ public class clientUDP : MonoBehaviour
     }
     public void AddInput(KeyCode input, string type)
     {
-        
+
         CustomClasses.Input newInput = new CustomClasses.Input();
         newInput.key = input.ToString();
-       // Debug.Log(newInput.key);
+        // Debug.Log(newInput.key);
         newInput.type = type;
         inputList.Add(newInput);
     }
@@ -306,13 +333,17 @@ public class clientUDP : MonoBehaviour
         newInput.type = type;
         inputList.Add(newInput);
     }
+    /*public void AddState(string state)
+    {
+        stateList.Add(state);
+    }*/
     public void ExecuteScript()
     {
         adress = IPAddress.Parse("127.0.0.1");
         ipep = new IPEndPoint(adress, port);
 
         jitter.Server = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-      //  jitter.Server = newSocket;
+        //  jitter.Server = newSocket;
 
         MainThread = new Thread(UDPConnection);
         MainThread.Start();
@@ -343,6 +374,8 @@ public class clientUDP : MonoBehaviour
             dynamicObjects.Add(m.GUIDplayer2, initialDynamicObjs[1]);
             dynamicObjects.Add(m.GUIDgun1, initialDynamicObjs[2]);
             dynamicObjects.Add(m.GUIDgun2, initialDynamicObjs[3]);
+
+            livesLeft = m.livesLeft;
 
             for (int i = 0; i < m.spawns.Count; i++)
             {
@@ -385,10 +418,10 @@ public class clientUDP : MonoBehaviour
     {
         while (true)
         {
-          
-          //  CustomClasses.SceneObject obj = new CustomClasses.SceneObject();
-          //  obj.rotation = gunRotation;
-          //  temp.objects.Add(obj);
+
+            //  CustomClasses.SceneObject obj = new CustomClasses.SceneObject();
+            //  obj.rotation = gunRotation;
+            //  temp.objects.Add(obj);
             //if (inputList.Count > 0)
             //{
             //    MemoryStream stream = new MemoryStream();
@@ -399,7 +432,7 @@ public class clientUDP : MonoBehaviour
             //        if (ah.Value == gun)
             //            obj.guid = ah.Key;
             //    }
-                   
+
             //    obj.rotation = gunRotation;
             //    temp.objects.Add(obj);
             //    temp.inputs = inputList;
@@ -410,7 +443,7 @@ public class clientUDP : MonoBehaviour
             //    ACK++;
             //    newSocket.SendTo(stream.ToArray(), SocketFlags.None, ipep);
             //}
-          
+
 
             if (sendFrameCounter >= 5)
             {
@@ -426,15 +459,16 @@ public class clientUDP : MonoBehaviour
                 }
 
                 temp.objects.Add(obj);
-                
+
                 temp.addType("movement");
 
                 if (inputList.Count > 0)
                 {
-                  //  Debug.Log("ACK = " + ACK);
+                    //  Debug.Log("ACK = " + ACK);
                     temp.addType("acknowledgement");
                     temp.ACK = ACK;
                     temp.inputs = inputList;
+                    //temp.states = stateList;
                     sentMessages.Add(temp);
                     ACK++;
                 }
@@ -442,7 +476,7 @@ public class clientUDP : MonoBehaviour
 
                 jitter.sendMessage(stream.ToArray(), ipep);
 
-               // newSocket.SendTo(stream.ToArray(), SocketFlags.None, ipep);
+                // newSocket.SendTo(stream.ToArray(), SocketFlags.None, ipep);
 
                 sendFrameCounter = 0;
             }
@@ -453,81 +487,104 @@ public class clientUDP : MonoBehaviour
     {
         while (true)
         {
-            byte[] msg = new Byte[10000];
+            try
+            {
+                byte[] msg = new Byte[10000];
 
-            jitter.Server.ReceiveFrom(msg, ref Remote);
-            if (receiveFrameCounter == 0)
-                receiveFrameCounter = 1;
-            interpolationValue = 1.0f / receiveFrameCounter;
-            firstInterpolationFrame = true;
-            receiveFrameCounter = 0;
-            // Debug.Log(Encoding.ASCII.GetString(msg));
-            MemoryStream stream = new MemoryStream(msg);
-            CustomClasses.Message m = deserializeJson(stream);
-            if(m.messageTypes.Contains("movement"))
-            {
-                foreach (CustomClasses.SceneObject obj in m.objects)
+                jitter.Server.ReceiveFrom(msg, ref Remote);
+                if (receiveFrameCounter == 0)
+                    receiveFrameCounter = 1;
+                interpolationValue = 1.0f / receiveFrameCounter;
+                firstInterpolationFrame = true;
+                receiveFrameCounter = 0;
+                // Debug.Log(Encoding.ASCII.GetString(msg));
+                MemoryStream stream = new MemoryStream(msg);
+                CustomClasses.Message m = deserializeJson(stream);
+                if (m.messageTypes.Contains("Defeat"))
                 {
-                    // GameObject obj2update = GameObject.Find(obj.name);
-                    Objs2Update.Add(obj);
-                    //   obj2update.transform.position = obj.transform.position;
+                    defeat = true;
+                    EndConnection();
+
                 }
-            }
-            
-            int max = sentMessages.Count;
-         //   Debug.Log(max);
-            for (int i = 0; i < max; i++)
-            {
-                if (sentMessages[i].ACK <= m.ACK)
+                if (m.messageTypes.Contains("Victory"))
                 {
-                    sentMessages.RemoveAt(i);
-                    i--;
-                    max--;
+                    victory = true;
+                    EndConnection();
+
                 }
-            }
-            if (m.messageTypes.Contains("acknowledgement"))
-                if (ACK > m.ACK)
+                if (m.messageTypes.Contains("movement"))
                 {
-                    Debug.LogError("ACK ERROR");
-                    CustomClasses.Message temp = new CustomClasses.Message();
-                    for (int i = 0; i < sentMessages.Count; i++)
+                    foreach (CustomClasses.SceneObject obj in m.objects)
                     {
-                        if (sentMessages[i].ACK > m.ACK)
-                        {
-                            for (int j = 0; j < sentMessages[i].inputs.Count; j++)
-                                temp.inputs.Add(sentMessages[i].inputs[j]);
-                        }
+                        // GameObject obj2update = GameObject.Find(obj.name);
+                        Objs2Update.Add(obj);
+                        //   obj2update.transform.position = obj.transform.position;
                     }
-
-                    temp.ACK = ACK;
-                    stream = serializeJson(temp);
-                    jitter.sendMessage(stream.ToArray(), ipep);
-                   // newSocket.SendTo(stream.ToArray(), SocketFlags.None, ipep);
-                    sentMessages.Clear();
-                    sentMessages.Add(temp);
                 }
-            if (m.messageTypes.Contains("spawn"))
-            {
-                for(int i = 0; i < m.spawns.Count; i++)
-                {
 
-           
-                    WaitingToSpawn.Add(m.spawns[i]);
+                int max = sentMessages.Count;
+                //   Debug.Log(max);
+                for (int i = 0; i < max; i++)
+                {
+                    if (sentMessages[i].ACK <= m.ACK)
+                    {
+                        sentMessages.RemoveAt(i);
+                        i--;
+                        max--;
+                    }
+                }
+                if (m.messageTypes.Contains("acknowledgement"))
+                    if (ACK > m.ACK)
+                    {
+                        CustomClasses.Message temp = new CustomClasses.Message();
+                        for (int i = 0; i < sentMessages.Count; i++)
+                        {
+                            if (sentMessages[i].ACK > m.ACK)
+                            {
+                                for (int j = 0; j < sentMessages[i].inputs.Count; j++)
+                                    temp.inputs.Add(sentMessages[i].inputs[j]);
+                            }
+                        }
+
+                        temp.ACK = ACK;
+                        stream = serializeJson(temp);
+                        jitter.sendMessage(stream.ToArray(), ipep);
+                        // newSocket.SendTo(stream.ToArray(), SocketFlags.None, ipep);
+                        sentMessages.Clear();
+                        sentMessages.Add(temp);
+                    }
+                if (m.messageTypes.Contains("spawn"))
+                {
+                    for (int i = 0; i < m.spawns.Count; i++)
+                    {
+
+
+                        WaitingToSpawn.Add(m.spawns[i]);
+                    }
+                }
+                if (m.messageTypes.Contains("remove"))
+                {
+                    for (int i = 0; i < m.removals.Count; i++)
+                    {
+                        WaitingToRemove.Add(m.removals[i]);
+                    }
+                }
+                if (m.states.Count > 0)
+                {
+                    for (int i = 0; i < m.states.Count; i++)
+                    {
+                        stateList.Add(m.states[i]);
+                    }
+                }
+                if (m.messageTypes.Contains("respawn"))
+                {
+                    livesLeft = m.livesLeft;
                 }
             }
-            if (m.messageTypes.Contains("remove"))
+            catch (SystemException e)
             {
-                for (int i = 0; i < m.removals.Count; i++)
-                {
-                    WaitingToRemove.Add(m.removals[i]);
-                }
-            }
-            if (m.states.Count > 0)
-            {
-                for (int i = 0; i < m.states.Count; i++)
-                {
-                    stateList.Add(m.states[i]);
-                }
+                Debug.Log(e.ToString());
+
             }
 
         }
@@ -542,7 +599,7 @@ public class clientUDP : MonoBehaviour
         {
             jitter.Server.Shutdown(SocketShutdown.Both);
             jitter.Server.Close();
-            
+
         }
 
         catch (SystemException e)
@@ -551,7 +608,7 @@ public class clientUDP : MonoBehaviour
             Debug.Log(e.ToString());
 
         }
-        if(jitter.start != null)
+        if (jitter.start != null)
             jitter.start.Abort();
         if (MainThread != null)
             MainThread.Abort();
@@ -575,7 +632,7 @@ public class clientUDP : MonoBehaviour
             Debug.Log(e.ToString());
 
         }
-          if(jitter.start != null)
+        if (jitter.start != null)
             jitter.start.Abort();
         if (MainThread != null)
             MainThread.Abort();
@@ -586,7 +643,7 @@ public class clientUDP : MonoBehaviour
     }
     MemoryStream serializeJson(CustomClasses.Message m)
     {
-       
+
         string json = JsonUtility.ToJson(m);
         //Debug.Log(json);
         MemoryStream stream = new MemoryStream();
@@ -599,11 +656,13 @@ public class clientUDP : MonoBehaviour
 
     CustomClasses.Message deserializeJson(MemoryStream stream)
     {
+        //  Debug.Log("message received");
+
         var m = new CustomClasses.Message();
         BinaryReader reader = new BinaryReader(stream);
         stream.Seek(0, SeekOrigin.Begin);
         string json = reader.ReadString();
-       // Debug.Log(json);
+        // Debug.Log(json);
         m = JsonUtility.FromJson<CustomClasses.Message>(json);
         return m;
     }
@@ -614,7 +673,7 @@ public class clientUDP : MonoBehaviour
         BinaryReader reader = new BinaryReader(stream);
         stream.Seek(0, SeekOrigin.Begin);
         string json = reader.ReadString();
-             Debug.Log(json);
+        Debug.Log(json);
         m = JsonUtility.FromJson<CustomClasses.WelcomeMessage>(json);
         return m;
     }
