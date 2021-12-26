@@ -202,7 +202,7 @@ public class clientUDP : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log((int)(1f / Time.unscaledDeltaTime));
+      //  Debug.Log((int)(1f / Time.unscaledDeltaTime));
 
         m_MyText.text = livesLeft.ToString();
 
@@ -294,6 +294,7 @@ public class clientUDP : MonoBehaviour
                             obj2update.transform.position = obj2update.transform.position + newpos;
 
                             obj2update.transform.rotation = Objs2Update[i].rotation;
+                          //  Debug.Log("interpolate with" + interpolationValue);
 
                             interpolationTracker += interpolationValue;
                         }
@@ -397,8 +398,7 @@ public class clientUDP : MonoBehaviour
             Debug.Log("Couldn't send or receive message");
             Debug.Log(e.ToString());
             Debug.Log("Disconnecting from server");
-            EndConnection();
-            SceneManager.LoadScene("MenuScene");
+            EndConnection("MenuScene");
         }
 
 
@@ -498,13 +498,13 @@ public class clientUDP : MonoBehaviour
                 if (m.messageTypes.Contains("Defeat"))
                 {
                     defeat = true;
-                    EndConnection();
+                    EndConnection("defeat");
 
                 }
                 if (m.messageTypes.Contains("Victory"))
                 {
                     victory = true;
-                    EndConnection();
+                    EndConnection("victory");
 
                 }
                 if (m.messageTypes.Contains("movement"))
@@ -586,7 +586,7 @@ public class clientUDP : MonoBehaviour
 
     }
 
-    public void EndConnection()
+    public void EndConnection(string scene)
     {
         Debug.Log("Disconnecting from server");
         MainThread.Abort();
@@ -611,6 +611,8 @@ public class clientUDP : MonoBehaviour
             receiveThread.Abort();
         if (sendThread != null)
             sendThread.Abort();
+        SceneManager.LoadScene(scene);
+
     }
 
     void OnApplicationQuit()

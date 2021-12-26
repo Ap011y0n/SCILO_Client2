@@ -90,6 +90,6 @@ public class Player2Controller : MonoBehaviour
     public void UpdateState(CustomClasses.PlayerState state)
     {
         playerState = (State)Enum.Parse(typeof(State), state.state, true);
-        Debug.Log("State: " + playerState.ToString());
+//        Debug.Log("State: " + playerState.ToString());
     }
 }

@@ -21,7 +21,7 @@ public class bullet : MonoBehaviour
         if ((System.DateTime.UtcNow - start).Seconds > 5f)
         {
             Destroy(gameObject);
-            Debug.LogError("Delete me from dictionary");
+    //        Debug.LogError("Delete me from dictionary");
             //GameObject.Find("Client").GetComponent<clientUDP>().dynamicObjects.
 
         }
