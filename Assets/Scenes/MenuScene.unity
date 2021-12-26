@@ -264,7 +264,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 55.4}
-  m_SizeDelta: {x: 513.44, y: 50}
+  m_SizeDelta: {x: 526.01, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &90735074
 MonoBehaviour:
@@ -286,7 +286,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: the infinity lands odissey
+  m_text: the infinity lands odyssey
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 692575de6c96bec49a40466991fb44fb, type: 2}
   m_sharedMaterial: {fileID: 2807115806481448521, guid: 692575de6c96bec49a40466991fb44fb, type: 2}
